@@ -1,95 +1,100 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client"
+import React, { useState } from "react";
+import 'semantic-ui-css/semantic.min.css';
 
-export default function Home() {
+import axios from "axios";
+import {
+  GridColumn,
+  FormGroup,
+  FormField,
+  Button,
+  Divider,
+  Form,
+  Grid,
+  Segment,
+} from "semantic-ui-react";
+
+function CatDogDataPage() {
+  const myStyles = {
+    color: "Black",
+    fontSize: "18px",
+    border: "1px solid black",
+    padding: "10px",
+    borderRadius: "5px",
+    backgroundColor: "lightgray",
+  };
+  const [selectedAnimal, setSelectedAnimal] = useState(null);
+  const [resultData, setResultData] = useState(null);
+  const [submitClicked, setSubmitClicked] = useState(false);
+  const handleCheckboxChange = async (animal) => {
+    setSelectedAnimal(animal);
+    setSubmitClicked(false);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (selectedAnimal) {
+        const response = await axios.get(
+          selectedAnimal === "cat"
+            ? "https://catfact.ninja/fact"
+            : "https://dog.ceo/api/breeds/image/random"
+        );
+
+        setResultData(response.data);
+        setSubmitClicked(true);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <Segment placeholder>
+      <Grid columns={2} relaxed="very" stackable>
+        <GridColumn>
+          <Form>
+            <FormGroup grouped>
+              <label>Choose one Cat OR Dog</label>
+              <FormField
+                label="Cat"
+                control="input"
+                type="radio"
+                name="animal"
+                onChange={() => handleCheckboxChange("cat")}
+              />
+              <FormField
+                label="Dog"
+                control="input"
+                type="radio"
+                name="animal"
+                onChange={() => handleCheckboxChange("dog")}
+              />
+            </FormGroup>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+            <Button content="Submit" primary onClick={handleSubmit} />
+          </Form>
+        </GridColumn>
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+        <GridColumn verticalAlign="middle">
+          {submitClicked && resultData && (
+            <div>
+              {selectedAnimal === "cat" ? (
+                <div style={myStyles}>{resultData.fact}</div>
+              ) : (
+                <img
+                  src={resultData.message}
+                  alt="Click on submit"
+                  width={"300px"}
+                  height={"300px"}
+                />
+              )}
+            </div>
+          )}
+        </GridColumn>
+      </Grid>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+      <Divider vertical>||</Divider>
+    </Segment>
+  );
 }
+
+export default CatDogDataPage;
